@@ -1,5 +1,5 @@
 {
-  "include": ["NetscriptDefinitions.d.ts", "src/**/*"],
+  "include": ["NetscriptDefinitions.d.ts", "*Definitions.d.ts", "src/**/*"],
   "compilerOptions": {
     "module": "esnext",
     "target": "esnext",
@@ -15,7 +15,8 @@
     "allowJs": true,
     "paths": {
       "/*": ["*"],
-      "@ns": ["../NetscriptDefinitions.d.ts"]
+      "@ns": ["../NetscriptMyDefinitions.d.ts", "../NetscriptDefinitions.d.ts"],
+      "@4xel": ["CustomDefinitions.d.ts"]
     }
   }
 }

@@ -1,0 +1,2 @@
+alias nuke="run scout/nuke.js";
+alias scout="run scout/scout.js";

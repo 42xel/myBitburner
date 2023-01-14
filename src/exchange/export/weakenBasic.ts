@@ -1,6 +1,7 @@
 import { NS } from "@ns";
+
 /** @param {NS} ns */
 export async function main(ns: NS): Promise<void> {
-  ns.tprint("Hello Remote API!");
+    const [target] = ns.args;
+    ns.writePort(ns.pid, await ns.weaken(target as string));
 }
-
