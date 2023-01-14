@@ -1,5 +1,4 @@
 node_modules/
-
 NetscriptDefinitions.d.ts
 *.log
 ./vscode
