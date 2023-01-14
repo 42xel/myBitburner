@@ -1,0 +1,6 @@
+/** @param {NS} ns */
+export async function main(ns) {
+    const [target] = ns.args;
+    ns.writePort(ns.pid, await ns.weaken(target));
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoid2Vha2VuQmFzaWMuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi9zcmMvZXhjaGFuZ2UvZXhwb3J0L3dlYWtlbkJhc2ljLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUVBLHFCQUFxQjtBQUNyQixNQUFNLENBQUMsS0FBSyxVQUFVLElBQUksQ0FBQyxFQUFNO0lBQzdCLE1BQU0sQ0FBQyxNQUFNLENBQUMsR0FBRyxFQUFFLENBQUMsSUFBSSxDQUFDO0lBQ3pCLEVBQUUsQ0FBQyxTQUFTLENBQUMsRUFBRSxDQUFDLEdBQUcsRUFBRSxNQUFNLEVBQUUsQ0FBQyxNQUFNLENBQUMsTUFBZ0IsQ0FBQyxDQUFDLENBQUM7QUFDNUQsQ0FBQyJ9
