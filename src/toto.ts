@@ -1,4 +1,5 @@
 import { NS } from "@ns";
+import { bla } from "../CustomDefinitions";
 
 function isPrime (n: number){
     let m = Math.sqrt(n);
@@ -36,3 +37,5 @@ export async function main(ns: NS): Promise<void> {
     }
     
 }
+
+export let h:bla = {t:"hello"};
