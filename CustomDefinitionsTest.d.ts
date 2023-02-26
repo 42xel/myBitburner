@@ -1,6 +1,7 @@
 
 import { SomePartial } from "./CustomDefinitions";
 
+type bla = Generator extends Iterable<any> ? true : false;
 
 type SomePartialTest0 = {
     foo : "foo",

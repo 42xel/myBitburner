@@ -21,27 +21,39 @@ type PrintfTypeSpecifier =
     'j' ; // — yields a JavaScript object or array as a JSON encoded string
 
 /** 
+ * @remark null vs undefined default value: Definition of defaultValue : 
+ * usage : ?
  * @todo ? add stringify and parse. Add constructor from class.
  */
 class ScriptArgType<Name extends string = string, BaseType = any> extends HelpElement {
     name: Name; //for now useless, but might or might not lead to very cool stuff if constructor from class is ever implemented.
     check?: (v: any) => boolean;
-    values?: Generator<BaseType>;
+    values?: () => Iterable<BaseType>;
     defaultValue?: BaseType;
+    help: typeof HelpElement["help"];
 
-    constructor (name: Name, {check, values, defaultValue}: {check?: (v: any) => boolean, values?: Generator<BaseType>, defaultValue?: BaseType},
+    #ns?: NS;
+
+    constructor (name: Name, {check, values, defaultValue}: {check?: (v: any) => boolean, values?: () => Iterable<BaseType>, defaultValue?: BaseType},
         {helpFormat, helpString, helpStrings, BaseTypeLetter = 's'}:
             {helpFormat?: HelpElement["helpFormat"], helpString?: HelpElement["helpString"], helpStrings?: HelpElement["helpStrings"],
                 BaseTypeLetter: PrintfTypeSpecifier})
     {
-        helpFormat ??= () => `type ${name}${this.check? '': " (no check)"}. ${this.helpString != undefined ? "%s" : ''}Default: ${this.defaultValue}. 
+        // @todo ? handle depth
+        helpFormat ??= () => `type ${name}${this.check ? '': " (no check)"}. ${this.helpString != undefined ? "%s" : ''}Default: ${this.defaultValue}. 
         ${this.values ?  "Values:\n%j": ''}`;
-        helpStrings ??= function*(){}
+        helpStrings ??= () => [
+            typeof this.helpString == "function" ? this.helpString() : this.helpString,
+            (this.values ? [...this.values()] : undefined),
+        ].filter((x) => x != undefined);
+
         super(helpFormat, helpString, helpStrings);
         this.name = name;
         this.check = check;
         this.values = values;
         this.defaultValue = defaultValue;
+
+        this.help = 
     }  
 }
 /*
