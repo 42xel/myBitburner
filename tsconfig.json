@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "include": ["NetscriptDefinitions.d.ts", "*Definitions.d.ts", "src/**/*"],
-=======
-  "include": ["NetscriptDefinitions.d.ts", "src/**/*"],
->>>>>>> faf0033 (bla)
   "compilerOptions": {
     "module": "esnext",
     "target": "esnext",
@@ -20,7 +16,7 @@
     "paths": {
       "/*": ["*"],
       "@ns": ["../NetscriptMyDefinitions.d.ts", "../NetscriptDefinitions.d.ts"],
-      "@4xel": ["CustomDefinitions.d.ts"]
+      "@4xel": ["../CustomDefinitions.d.ts"],
     }
   }
 }

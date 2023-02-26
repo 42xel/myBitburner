@@ -21,19 +21,29 @@ export function generate(action:string): (ns: NS, host: string, target: string, 
         await p.nextWrite();
         ns.print(`${ns.getScriptLogs(pid).pop()}(pid=${pid})`);
         const r = p.read() as number;
-        await ns.asleep(0);
+//        await ns.asleep(0);
         return r;
     }
 }
 
 /** 
  * @param {NS} ns
- * @param {string} host */
+ * @param {string} host
+ * @param {string} target
+ * @param {number} nbThreads 
+ * */
 export const hackBasic = generate("hack");
-/** @param {NS} ns
- * @param {string} host */
+/** 
+ * @param {NS} ns
+ * @param {string} host
+ * @param {string} target
+ * @param {number} nbThreads 
+ * */
 export const growBasic = generate("grow");
 /** 
  * @param {NS} ns
- * @param {string} host */
+ * @param {string} host
+ * @param {string} target
+ * @param {number} nbThreads 
+ * */
 export const weakenBasic = generate("weaken");

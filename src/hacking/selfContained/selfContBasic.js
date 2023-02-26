@@ -12,10 +12,10 @@ export async function main(ns) {
 			nbGrow = 25;
 			nbHack = 50;
 		}
-		let moneyThreshold, moneyGain;
+		let moneyThreshold;
 		while (nbGrow-- > 0 && await ns.grow(target) != 1)
 			nbHack -= 2;
 		while (nbHack-- > 0 && (moneyThreshold = await ns.hack(target) / 2) == 0 );
-		while (nbHack-- > 0 && ((moneyGain = await ns.hack(target)) > moneyThreshold || moneyGain == 0));
+		while (nbHack-- > 0 && await ns.hack(target) > moneyThreshold );
 	}
 }

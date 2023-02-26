@@ -12,35 +12,35 @@ const nukeNames = [
 /** A function trying to nuke a server.
  *  @param {NS} ns - 
  * @returns - true if the server has been succesfully nuke, false otherwise. */
-export function nuke(ns: NS, target: string ) {
+export function nuke(ns: NS, target: string ): boolean {
 //    let enabledLog = [];
 //    for (let fn of nukeNames) {
-//        if (ns.isLogEnabled(fn) ){
+//        if ( ns.isLogEnabled(fn) ){
 //            enabledLog.push(fn);
 //            ns.disableLog(fn);
 //        }
 //    }
-
+    
     try {
         ns.brutessh(target);
         ns.ftpcrack(target);
         ns.relaysmtp(target);
         ns.httpworm(target);
         ns.sqlinject(target);
-    } catch {}
-
+    } catch (e) {ns.print(`${e}`);}
     try {
         ns.nuke(target);
         ns.toast(`target nuked : ${target}`, "success");
         return true;
     }
-    catch (e) {
+    catch (eNuke) {
         ns.toast(`target resisted nuking : ${target}`, "warning");
-        ns.print(`${e}`);
+        ns.print(`${eNuke}`);
         return false;
     }
+    
 //    finally {
-//        for (let fn of nukeNames)
+//        for (let fn of enabledLog)
 //            ns.enableLog(fn);
 //    }
 }

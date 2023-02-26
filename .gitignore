@@ -3,4 +3,6 @@ NetscriptDefinitions.d.ts
 *.log
 ./vscode
 package-lock.json
-
+./src/toto.js
+./dist/*
+dist/*

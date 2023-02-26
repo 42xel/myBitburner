@@ -1,4 +1,4 @@
-//todo : remove the vangurad part
+//todo : remove the scout part
 
 import { NS } from "@ns";
 

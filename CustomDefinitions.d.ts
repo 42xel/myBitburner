@@ -1,154 +1,143 @@
+import { NS, ScriptArg } from "@ns";
+import { ScriptArgType } from "./src/cli/flagsParam.js"
+
+//////////////////////// Somewhat generic tools ////////////////////////
 /**
- * A type depending on how T and S relate to each other
+ * Make some properties in T optional
  */
-//type EquivalentOrExtend<T,S,Eq,Ex,Def> = T extends S ? S extends T ? Eq: Ex: Def
+type SomePartial<T, TOptional extends keyof T> = Partial<Pick<T, TOptional>> & Omit<T, TOptional>;
 /**
- * A type depending on how T and S relate to each other
+ * Create a type with proerties of T transformed in parametrized getters.
+ * @todo see wether it's possible to transform optional A|undefined into
+ * optional ((Ikey) => A) | undefined,
+ * as opposed to optional ((Ikey) => A | undefined) | undefined
+ */
+type Gettify<T, IKey> = {
+    [K in keyof T] : (tkey : IKey) => T[K];
+}
+/** Return the type of the element iterated over. */
+type Iterated<T> = T extends Iterable<infer A> ? A : never;
+
+//////////////////////// trees ////////////////////////
+
+/* a template with Self as a parameter type allows reuse with modification, or to flatten.
 */
-type Equivalent<T,S,Eq,Def> = T extends S ? S extends T ? Eq: Def: Def
+interface TreeNodeInterfaceTemplate<Self, Value> {
+    value : Value;
+    parent : Self | undefined;
+    children : Iterable<Self>;
 
-export type ReplaceRec<T,S,Substitute> = {
-    [P in keyof T]:Equivalent<T[P],T,Substitute,
-    never
-    >
+    tree? : TreeInterfaceTemplate<Self, Value>;
 }
-
-
-/**
- * Obtain the parameters of a function type in a tuple
- */
-type Parameters<T extends (...args: any) => any> = T extends (...args: infer P) => any ? P : never;
-
-/**
- * Obtain the parameters of a constructor function type in a tuple
- */
-type ConstructorParameters<T extends abstract new (...args: any) => any> = T extends abstract new (...args: infer P) => any ? P : never;
-
-/**
- * Obtain the return type of a function type
- */
-type ReturnType<T extends (...args: any) => any> = T extends (...args: any) => infer R ? R : any;
-
-/**
- * Obtain the return type of a constructor function type
- */
-type InstanceType<T extends abstract new (...args: any) => any> = T extends abstract new (...args: any) => infer R ? R : any;
-
-export type bla = ReplaceRec<boolean|{bla:number},number,string>;
-
-
-/**
- * From T, pick a set of properties whose keys are in the union K,
- * And replace appearance of type T by itself.
- */
-//type PickRec<T,K extends keyof T> = {
-//    [P in K]: T[P] extends T ? PickRec<T[P],K> : 
-//    T[P] extends  infer S| infer T ? T2 | PickRec<T[P],K> :
-//};
-//
-//type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
-//type Pick<T, K extends keyof T> = {
-//    [P in K]: T[P];
-//};
-
-//export type ListHead<Value> = (Value | undefined);
-interface ListInterfaceTemplate {
-    head: any;
-    tail: any;
-    pop:Function;
-    push:Function;
+/** The node of a tree */
+export type TreeNode<Value> = TreeNodeInterfaceTemplate<TreeNode<Value>,Value> ;
+interface TreeInterfaceTemplate<Node, Value> extends Iterable<Value> {
+    root : Node;
+    size? : number;
 }
-interface EmptyList<Value> extends ListInterfaceTemplate {
-    head:undefined;
-    tail:undefined;
-    pop:()=>undefined;
-    push:(elt:Value)=>void;
-//   constructor:(x:Iterable<Value>|null) => List<Value>
+export type Tree<Value> = TreeInterfaceTemplate<TreeNode<Value>,Value> ;
+
+type ImplicitTreeNode<Node, Value> = Gettify<TreeNodeInterfaceTemplate<Node, Value>, Node>;
+/** An implicit tree, without an explicit structure to store node links */
+export interface ImplicitTree<Node, Value> extends TreeInterfaceTemplate<Node,Value>, ImplicitTreeNode<Node, Value> {}
+
+interface BinaryTreeNodeInterfaceTemplate<Self, Value> extends SomePartial<TreeNodeInterfaceTemplate<Self, Value>, "children"> {
+    left : Self | undefined;
+    right : Self | undefined;
 }
-interface NonEmtyList<Value> extends ListInterfaceTemplate {
-    head:Value;
-    tail:List<Value>;
-    pop:()=>Value;
-    push:(elt:Value)=>void;
-//   constructor:(x:Iterable<Value>|null) => List<Value>
-}
+export type BinaryTreeNode<Value> = BinaryTreeNodeInterfaceTemplate<BinaryTreeNode<Value>,Value> ;
+export type BinaryTree<Value> = TreeInterfaceTemplate<BinaryTreeNode<Value>,Value> ;
 
-export type ListLink<Value> = {
-    value:Value;
-    next:undefined|ListLink<Value>;
-    previous?:undefined|ListLink<Value>;
-//    constructor:(x:Value)=>ListLink<Value>    //would be for the interface
-}
+type ImplicitBinaryTreeNode<Node, Value> = Gettify<BinaryTreeNodeInterfaceTemplate<Node, Value>, Node>;
+/** An implicit tree, without an explicit structure to store node links */
+export interface ImplicitBinaryTree<Node, Value> extends TreeInterfaceTemplate<Node,Value>, ImplicitBinaryTreeNode<Node, Value> {}
 
-/** @ */
-export interface List<Value>{
-    head:undefined|Value;
-    tail:undefined|List<Value>;
-    push:(elt:Value)=>void;
-    pop:()=>undefined|Value;
-//    constructor:(t:Iterable<Value>|null)=> unknown;// List<Value>;
-}
-
-
-/**  */
-export interface TreeNode<Value> {
-    value: Value ;
-    parent: TreeNode<Value> | undefined;
-    children?:Iterable<TreeNode<Value>>|undefined ;
-}
-type _TreeNode<Value> = {
-
-}
-
-/** @ */
-export interface BinaryTreeNode<Value> extends TreeNode<Value> {
-    parent:BinaryTreeNode<Value> | undefined;
-    left:BinaryTreeNode<Value> | undefined;
-    right:BinaryTreeNode<Value> | undefined;
-    children?:[BinaryTreeNode<Value>, BinaryTreeNode<Value>] | undefined;
-}
-
-///**  */
-type GeneratorFunctionTreeNode<Value> = (_:null) => Generator<Value,any,any>
-
-/**  */
-export interface Tree<Value> extends Iterable<Value> {
-    root:TreeNode<Value>;
-    BFS?:GeneratorFunctionTreeNode<Value>;
-    DFSprefixe?: GeneratorFunctionTreeNode<Value>;
-    DFSpostfixe?:GeneratorFunctionTreeNode<Value>;
-}
-
-
-//, cmp?:(a:Value,b:Value) => Number
-/**  */
+/** A heap interface
+ *  @Public */
 export interface Heap<Value> extends Iterable<Value> {
-    peek:()=>Value;
-    insert:(element:Value)=>void;
-    pop:()=>Value;
-    remove?:()=>void;
-    replace:(element:Value)=>Value;
-
-    create:()=>Heap<Value>;
- //   heapify: create a heap out of given array of elements
+    /** A comparison function to specify the heap structure
+     * @param a the first value to compare
+     * @param b the second value to compare
+     */
+    cmp? : ((a:Value,b:Value) => boolean) | ((a:Value,b:Value) => number);
+    //Basic Operations
+    /** peeks at the top of the heap without deleting it.
+     * @returns the value at the top of the heap
+     */
+    peek:()=>Value | undefined;
+    /** pushes a value in the heap.
+     * @param value the value to push
+     */
+    push:(value:Value)=>void;
+    /** deletes the top of the heap.
+     * @returns the value removed from the top of the heap
+     */
+    pop:()=> Value | undefined;
+    /** deletes the top of the heap.
+     */
+    delete?:()=>void;
+    /** 
+     * replaces the value at the top of the heap
+     * @param newValue the new value to push.
+     * @returns the old value.
+     * @description more efficient than pop() then push() since only one sifting is necessary.
+     */
+    replace:((newValue : Value)=>Value) | ((newValue:Value)=>void);
     
-    merge?:(...heaps:Readonly<Heap<Value>[]>)=> Heap<Value>[]
-    meld?:(...heaps:Heap<Value>[])=> Heap<Value>[]
-
-//    shake?:;
-//    setorder?;;
+    //Inspection
+    size?:number;
+    isEmpty?:boolean;
 }
 
-/**  */
-export interface Pointed<Temp,Obj extends Temp,Pointer> {
+//////////////////////// cli realted stuffs ////////////////////////
+export type FlagsSchemaParameter = Iterated<Parameters<NS["flags"]>> //smh Iterated<FlagsSchemaList> doesn't unpack a second time, investigate.
+export type ScriptArgsObject = ReturnType<NS["flags"]>
 
+export type FlagsTupleFull = [flag : string | string[], type : ScriptArgType, defaultValue : string[] | ScriptArg | null, helpString? : string ] ;
+export type FlagsTuple = Partial<FlagsTupleFull>
+
+//export type FlagsTuple = [flag : string, type : ScriptArgType, defaultValue : string[] | ScriptArg, helpString? : string ] |
+//    [flag : string, type : ScriptArgType, helpString? : string ] | 
+//    [flag : string, helpString? : string ] |
+//    [flag : string, defaultValue : string[] | boolean | number, helpString? : string ] |
+//    [flag : string, defaultValue : string, helpString : string ];
+//export type FlagsTuple = [flag : string, type?: ScriptArgType, defaultValue?: string[] | ScriptArg | null, helpString? : string ] |
+//    [flag : string, defaultValue: string[] | ScriptArg | null, helpString?: string ];// |
+//    //[flag : string, helpString : string ];
+
+//export type FlagsSchemaObject = { [key:string] : ScriptArg | string[], _:string[]};
+
+interface AutocompleteData {
+    servers : string[];
+    scripts : string[];
+    txts : string[];
+    flags : (schema : FlagsSchemaParameter) => ScriptArgsObject|undefined;
+}
+type Autocomplete = (data:AutocompleteData, args:ScriptArg[]) => string[];
+
+export interface FlagsElementInterface {
+    /**
+     * The flags schema as required by (ns.)flags()
+     */
+    schema:FlagsSchemaParameter;
+    autocomplete:Autocomplete;
+    
+    /** The equivalent of the flags function in main, autocomplete or as a standalone */
+    flags:((ns: NS) => ScriptArgsObject) | ((data: AutocompleteData) => ScriptArgsObject|undefined) | ((args : ScriptArg[]) => ScriptArgsObject|undefined) ;
+    /** A help prompt for invalid script args or when the --help parameter is given */
+    helpPrompt:(ns:NS , x?:ScriptArgsObject) => void ;
+    /** Transforms an object { ParamName : value } into a corresponding list of arguments, to be used for example with spreading and ns.run */
+    galfs:(x : ScriptArgsObject|undefined) => ScriptArg[];  //prob static though.
+
+    /** A text to display when help is requested n this particular object */
+    helpString?:string;
+
+//    man:()=>void;
+//    manualPre?:string
+//    manualPost?:string
 }
 
-/**  */
-export interface MaxHeap<Value> extends Heap<Value> {
-    find_max?:()=>Value;
-    delete_max?:()=>Value;
-    increase_key:(element:Value)=>void;
-    decrease_max?:(element:Value)=>void;
-    decrease_key?:(element:Value)=>void;
-}
+//aliases : "n|nuke"
+
+//todo usage then multi usage
+//usage extends FlagsSchemaInterface ; usages extends Iterable<usage>, usage
